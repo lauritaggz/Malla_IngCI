@@ -4,7 +4,7 @@ let cursosAprobados = new Set(JSON.parse(localStorage.getItem(APROBADOS_KEY) || 
 let datos = null;
 let byId = {};
 let mostrarDesbloqueados = true;
-let byId = {};
+
 let byCode = {};
 
 
@@ -134,7 +134,7 @@ async function cargarMalla() {
     contenedor.appendChild(col);
   });
 }
-}
+
 // ======== Controles ========
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-reset").addEventListener("click", () => {
@@ -197,7 +197,6 @@ function importarProgreso(file) {
     e.target.value = ""; 
   });
 }
-
 
 
 
