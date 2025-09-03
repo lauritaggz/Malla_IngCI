@@ -183,6 +183,15 @@ header h1 {
   background: var(--panel-bg);
   font-size: 13px;
   color: var(--txt);
+  word-wrap:break-word ;
+  overflow-wrap: break-word;
+}
+.prereq-panel ul{
+  margin: 6px 0 0;
+  padding-left: 18px;
+  list-style-position: inside;
+  word-wrap: break-word;
+  overflow-wrap: break-word
 }
 .prereq-panel.open { display: block }
 .prereq-panel strong { font-weight: 700 }
