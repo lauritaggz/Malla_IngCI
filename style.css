@@ -1,0 +1,215 @@
+/* ====== Variables y reset ====== */
+:root{
+  --borde:#222;
+  --ok:#2ecc71;
+  --bloq:#e67e22;
+  --aprob:#27ae60;
+  --bg:#f6f7fb;
+  --txt:#111;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--txt);
+  margin:0;
+  padding:24px;
+}
+
+/* ====== Encabezado ====== */
+header{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+header h1{
+  font-size:20px;
+  margin:0;
+}
+.acciones{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+#btn-reset{
+  padding:8px 12px;
+  border:1px solid var(--borde);
+  background:#fff;
+  border-radius:8px;
+  cursor:pointer;
+}
+#btn-reset:hover{ filter:brightness(0.97) }
+#toggle-prereq{ margin-left:6px }
+
+/* ====== Contenedor de malla ====== */
+#malla{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  overflow:auto;
+  padding-bottom:8px;
+}
+
+/* ====== Columna/semestre ====== */
+.semestre{
+  min-width:220px;
+  max-width:260px;
+  background:#fff;
+  border:2px solid var(--borde);
+  border-radius:12px;
+  padding:12px;
+}
+.semestre h3{
+  margin:0 0 8px 0;
+  font-size:16px;
+}
+
+/* ====== Tarjeta de curso ====== */
+.curso{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+  border:1px solid #bbb;
+  border-radius:10px;
+  padding:8px;
+  margin:8px 0;
+  cursor:pointer;
+  transition:box-shadow .15s ease, transform .05s ease;
+}
+.curso:hover{
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.curso:active{
+  transform:scale(0.997);
+}
+
+/* Contenido del curso */
+.curso .codigo{
+  font-weight:600;
+  font-size:12px;
+  opacity:.8;
+}
+.curso .nombre{
+  font-size:14px;
+  margin:2px 0 4px;
+  line-height:1.25;
+}
+.curso .sct{
+  font-size:12px;
+  opacity:.65;
+}
+
+/* Badge OK/Req fijo arriba a la derecha */
+.curso .badges{
+  position:absolute;
+  top:6px;
+  right:6px;
+  display:flex;
+  gap:6px;
+}
+.badge{
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:6px;
+  border:1px solid #aaa;
+  background:#fff;
+}
+.badge.ok{ border-color:var(--ok); color:var(--ok) }
+.badge.req{ border-color:var(--bloq); color:var(--bloq) }
+
+/* Estados visuales del curso */
+.curso.aprobado{
+  background:#eafaf0;
+  border-color:var(--aprob);
+}
+.curso.aprobado{
+  background:#eafaf0;
+  border-color:var(--aprob);
+}
+
+.curso.aprobado .nombre{
+  text-decoration: line-through;
+}
+
+.curso.desbloqueado{
+  outline:2px solid var(--ok);
+  outline-offset:2px;
+}
+.curso.bloqueado{
+  opacity:.60;
+}
+
+/* ====== Botón "Ver pre" ====== */
+/* Va abajo de la tarjeta, no choca con el badge */
+.btn-prereq{
+  margin-top:8px;
+  align-self:flex-start;
+  padding:6px 8px;
+  border:1px solid #999;
+  background:#fff;
+  border-radius:8px;
+  font-size:12px;
+  cursor:pointer;
+  user-select:none;
+}
+.btn-prereq:hover{ filter:brightness(0.97) }
+.btn-prereq:focus{
+  outline:2px solid #4c9ffe;
+  outline-offset:2px;
+}
+
+/* ====== Panel de prerrequisitos (plegable) ====== */
+.prereq-panel{
+  display:none;
+  margin-top:6px;
+  padding:8px;
+  border:1px dashed #bbb;
+  border-radius:8px;
+  background:#fafafa;
+  font-size:13px;
+}
+.prereq-panel.open{ display:block }
+.prereq-panel strong{ font-weight:700 }
+.prereq-panel ul{ margin:6px 0 0 18px }
+.prereq-panel .ok{ color:var(--ok); font-weight:600 }
+.prereq-panel .miss{ color:var(--bloq); font-weight:600 }
+
+/* ====== Accesibilidad y focus ====== */
+.curso:focus-within,
+.curso:focus{
+  outline:2px solid #4c9ffe;
+  outline-offset:2px;
+}
+
+/* ====== Scrollbar sutil (opcional) ====== */
+#malla::-webkit-scrollbar{ height:10px }
+#malla::-webkit-scrollbar-thumb{
+  background:#cfd3da; border-radius:10px; border:2px solid transparent; background-clip:content-box;
+}
+#malla::-webkit-scrollbar-track{ background:transparent }
+
+/* ====== Responsive ====== */
+@media (max-width: 900px){
+  #malla{ gap:12px }
+  .semestre{ min-width:200px }
+}
+@media (max-width: 640px){
+  body{ padding:16px }
+  header{ gap:8px }
+  .semestre{ min-width:180px; padding:10px }
+  .curso{ padding:8px }
+  .curso .nombre{ font-size:13px }
+}
+#btn-export, .btn-like{
+  padding:8px 12px;
+  border:1px solid var(--borde);
+  background:#fff;
+  border-radius:8px;
+  cursor:pointer;
+}
+#btn-export:hover, .btn-like:hover{ filter:brightness(0.97) }

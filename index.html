@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <button id="btn-export">Exportar progreso</button>
+  <label for="file-import" class="btn-like">Importar progreso</label>
+  <input id="file-import" type="file" accept="application/json" style="display:none" />
+
+  <h3>WEB EN DESARROLLO</h3>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Malla Interactiva</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<!-- Tooltip flotante para hover -->
+<div id="tooltip" class="tooltip hidden" role="tooltip" aria-hidden="true"></div>
+
+<!-- Mini menú (popover) para click -->
+<div id="popover" class="popover hidden" role="dialog" aria-modal="false" aria-labelledby="pop-title">
+  <div class="pop-header">
+    
+    
+  </div>
+  <div id="pop-body"></div>
+</div>
+
+<body>
+  <header>
+    <h1>Malla Bioquímica — Interactiva</h1>
+    <div class="acciones">
+      <button id="btn-reset">Reiniciar progreso</button>
+      <label>
+        <input type="checkbox" id="toggle-prereq" checked />
+        Mostrar desbloqueados
+      </label>
+    </div>
+  </header>
+
+  <main id="malla"></main>
+
+
+
+  <script src="script.js"></script>
+</body>
+</html>
