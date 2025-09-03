@@ -14,7 +14,7 @@
     {
       "numero": 2,
       "cursos": [
-        { "id": 5,  "codigo": "ACAD101", "nombre": "Taller de Innovación y Emprendimiento I", "sct": 10, "prerrequisitos": [], "prereq_expr": "" },
+        { "id": 5,  "codigo": "ACAD101", "nombre": "Taller de Innovación y Emprendimiento I", "sct": 10, "prerrequisitos": [3], "prereq_expr": "" },
         { "id": 6,  "codigo": "CEGHC11", "nombre": "Habilidades Comunicativas", "sct": 8,  "prerrequisitos": [], "prereq_expr": "" },
         { "id": 7,  "codigo": "CFIS328", "nombre": "Física Experimental", "sct": 16, "prerrequisitos": [], "prereq_expr": "CFIS310" },
         { "id": 8,  "codigo": "FMMP112", "nombre": "Cálculo Diferencial", "sct": 16, "prerrequisitos": [2], "prereq_expr": "FMMP012" },
@@ -25,19 +25,19 @@
       "numero": 3,
       "cursos": [
         { "id": 10, "codigo": "ACAD102", "nombre": "Taller de Innovación y Emprendimiento II", "sct": 10, "prerrequisitos": [5], "prereq_expr": "ACAD101" },
-        { "id": 11, "codigo": "CFIS332", "nombre": "Mecánica", "sct": 18, "prerrequisitos": [1], "prereq_expr": "CFIS310" },
+        { "id": 11, "codigo": "CFIS332", "nombre": "Mecánica", "sct": 18, "prerrequisitos": [1,7], "prereq_expr": "CFIS310" },
         { "id": 12, "codigo": "FMMP212", "nombre": "Cálculo Integral", "sct": 16, "prerrequisitos": [8], "prereq_expr": "FMMP112" },
         { "id": 13, "codigo": "ING119",  "nombre": "Inglés I", "sct": 12, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 14, "codigo": "TDFI104", "nombre": "Compliance & Accountability", "sct": 10, "prerrequisitos": [], "prereq_expr": "" }
+        { "id": 14, "codigo": "TDFI104", "nombre": "Compliance & Accountability", "sct": 10, "prerrequisitos": [3], "prereq_expr": "" }
       ]
     },
     {
       "numero": 4,
       "cursos": [
-        { "id": 15, "codigo": "FMSP316", "nombre": "Métodos Cuantitativos", "sct": 20, "prerrequisitos": [], "prereq_expr": "" },
+        { "id": 15, "codigo": "FMSP316", "nombre": "Métodos Cuantitativos", "sct": 20, "prerrequisitos": [12], "prereq_expr": "" },
         { "id": 16, "codigo": "ING129",  "nombre": "Inglés II", "sct": 12, "prerrequisitos": [13], "prereq_expr": "ING119" },
-        { "id": 17, "codigo": "INSW220", "nombre": "Práctica I", "sct": 16, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 18, "codigo": "INSW221", "nombre": "Tecnologías Disruptivas", "sct": 8,  "prerrequisitos": [], "prereq_expr": "" },
+        { "id": 17, "codigo": "INSW220", "nombre": "Práctica I", "sct": 16, "prerrequisitos": [1,2,3,4,5,7,8,9,10,11,12,14], "prereq_expr": "" },
+        { "id": 18, "codigo": "INSW221", "nombre": "Tecnologías Disruptivas", "sct": 8,  "prerrequisitos": [9], "prereq_expr": "" },
         { "id": 19, "codigo": "PTEC101", "nombre": "Algoritmos y Estructuras de Datos", "sct": 12, "prerrequisitos": [4], "prereq_expr": "TDFI102" }
       ]
     },
@@ -45,10 +45,10 @@
       "numero": 5,
       "cursos": [
         { "id": 20, "codigo": "ING239",  "nombre": "Inglés III", "sct": 12, "prerrequisitos": [16], "prereq_expr": "ING129" },
-        { "id": 21, "codigo": "INSW311", "nombre": "Disrupción Empresarial", "sct": 18, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 22, "codigo": "INSW312", "nombre": "Conectividad y Soluciones Móviles", "sct": 18, "prerrequisitos": [], "prereq_expr": "" },
+        { "id": 21, "codigo": "INSW311", "nombre": "Disrupción Empresarial", "sct": 18, "prerrequisitos": [18], "prereq_expr": "" },
+        { "id": 22, "codigo": "INSW312", "nombre": "Conectividad y Soluciones Móviles", "sct": 18, "prerrequisitos": [18], "prereq_expr": "" },
         { "id": 23, "codigo": "PTEC102", "nombre": "Paradigmas de Programación", "sct": 8,  "prerrequisitos": [19], "prereq_expr": "PTEC101" },
-        { "id": 24, "codigo": "TDFI105", "nombre": "Minería de Datos", "sct": 12, "prerrequisitos": [], "prereq_expr": "" }
+        { "id": 24, "codigo": "TDFI105", "nombre": "Minería de Datos", "sct": 12, "prerrequisitos": [15,9], "prereq_expr": "" }
       ]
     },
     {
@@ -56,30 +56,30 @@
       "cursos": [
         { "id": 25, "codigo": "ACAD103", "nombre": "Taller de Innovación y Emprendimiento III", "sct": 10, "prerrequisitos": [10], "prereq_expr": "ACAD102" },
         { "id": 26, "codigo": "ING249",  "nombre": "Inglés IV", "sct": 12, "prerrequisitos": [20], "prereq_expr": "ING239" },
-        { "id": 27, "codigo": "INSW321", "nombre": "Desafío Tecnológico", "sct": 5,  "prerrequisitos": [], "prereq_expr": "" },
+        { "id": 27, "codigo": "INSW321", "nombre": "Desafío Tecnológico", "sct": 5,  "prerrequisitos": [21], "prereq_expr": "" },
         { "id": 28, "codigo": "PTEC103", "nombre": "Desarrollo Web y Móvil", "sct": 14, "prerrequisitos": [23], "prereq_expr": "PTEC102" },
-        { "id": 29, "codigo": "PTEC105", "nombre": "Ingeniería de Software I", "sct": 15, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 30, "codigo": "TDFI106", "nombre": "Gestión de la Transformación Digital", "sct": 12, "prerrequisitos": [], "prereq_expr": "" }
+        { "id": 29, "codigo": "PTEC105", "nombre": "Ingeniería de Software I", "sct": 15, "prerrequisitos": [12], "prereq_expr": "" },
+        { "id": 30, "codigo": "TDFI106", "nombre": "Gestión de la Transformación Digital", "sct": 12, "prerrequisitos": [14], "prereq_expr": "" }
       ]
     },
     {
       "numero": 7,
       "cursos": [
         { "id": 31, "codigo": "CEGRS14", "nombre": "Responsabilidad Social", "sct": 6,  "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 32, "codigo": "INSW410", "nombre": "Portafolio de Proyectos", "sct": 10, "prerrequisitos": [27], "prereq_expr": "INSW321" },
-        { "id": 33, "codigo": "INSW411", "nombre": "Tópico de Especialidad I", "sct": 10, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 34, "codigo": "INSW412", "nombre": "Tópico de Especialidad II", "sct": 10, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 35, "codigo": "PTEC104", "nombre": "Infraestructura TI", "sct": 12, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 36, "codigo": "PTEC106", "nombre": "Ingeniería de Software II", "sct": 15, "prerrequisitos": [29], "prereq_expr": "PTEC105" }
+        { "id": 32, "codigo": "INSW410", "nombre": "Portafolio de Proyectos", "sct": 10, "prerrequisitos": [27,28,29], "prereq_expr": "INSW321" },
+        { "id": 33, "codigo": "INSW411", "nombre": "Tópico de Especialidad I", "sct": 10, "prerrequisitos": [21], "prereq_expr": "" },
+        { "id": 34, "codigo": "INSW412", "nombre": "Tópico de Especialidad II", "sct": 10, "prerrequisitos": [22], "prereq_expr": "" },
+        { "id": 35, "codigo": "PTEC104", "nombre": "Infraestructura TI", "sct": 12, "prerrequisitos": [23], "prereq_expr": "" },
+        { "id": 36, "codigo": "PTEC106", "nombre": "Ingeniería de Software II", "sct": 15, "prerrequisitos": [29,28], "prereq_expr": "PTEC105" }
       ]
     },
     {
       "numero": 8,
       "cursos": [
         { "id": 37, "codigo": "INSW420", "nombre": "Práctica II", "sct": 26, "prerrequisitos": [17], "prereq_expr": "INSW220" },
-        { "id": 38, "codigo": "INSW421", "nombre": "Seminario de Licenciatura en Ingeniería", "sct": 14, "prerrequisitos": [], "prereq_expr": "" },
-        { "id": 39, "codigo": "INSW422", "nombre": "Proyecto de Título", "sct": 14, "prerrequisitos": [38], "prereq_expr": "INSW421" },
-        { "id": 40, "codigo": "PTEC107", "nombre": "Ciberseguridad", "sct": 14, "prerrequisitos": [], "prereq_expr": "" }
+        { "id": 38, "codigo": "INSW421", "nombre": "Seminario de Licenciatura en Ingeniería", "sct": 14, "prerrequisitos": [36,32], "prereq_expr": "" },
+        { "id": 39, "codigo": "INSW422", "nombre": "Proyecto de Título", "sct": 14, "prerrequisitos": [32], "prereq_expr": "INSW421" },
+        { "id": 40, "codigo": "PTEC107", "nombre": "Ciberseguridad", "sct": 14, "prerrequisitos": [35], "prereq_expr": "" }
       ]
     }
   ]
