@@ -69,7 +69,7 @@ async function cargarMalla() {
   datos = await res.json();
   buildMaps(datos); // <-- aquí
   
-}
+
 
 
 
@@ -134,7 +134,7 @@ async function cargarMalla() {
     contenedor.appendChild(col);
   });
 }
-
+}
 // ======== Controles ========
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-reset").addEventListener("click", () => {
@@ -197,6 +197,7 @@ function importarProgreso(file) {
     e.target.value = ""; 
   });
 }
+
 
 
 
