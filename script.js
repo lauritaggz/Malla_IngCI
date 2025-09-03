@@ -4,6 +4,9 @@ let cursosAprobados = new Set(JSON.parse(localStorage.getItem(APROBADOS_KEY) || 
 let datos = null;
 let byId = {};
 let mostrarDesbloqueados = true;
+let byId = {};
+let byCode = {};
+
 
 // ======== Util ========
 const guardaProgreso = () => {
@@ -11,6 +14,20 @@ const guardaProgreso = () => {
 };
 const tieneTodos = (prereqs) => (prereqs || []).every((id) => cursosAprobados.has(id));
 const idToNombre = (id) => (byId[id]?.nombre || `ID ${id}`);
+function buildMaps(datos){
+  byId = {};
+  byCode = {};
+  datos.semestres.forEach(sem => sem.cursos.forEach(c => {
+    byId[c.id] = c;
+    if (c.codigo) byCode[c.codigo.trim().toUpperCase()] = c.id;
+  }));
+}
+function cumplePrereq(curso){
+  const okIds = (curso.prerrequisitos || []).every(id => cursosAprobados.has(id));
+  const okExpr = cumpleExprPorCodigo(curso.prereq_expr || "", cursosAprobados);
+  return okIds && okExpr;
+}
+
 
 function renderPrereqPanel(panelEl, curso){
   const prereqs = curso.prerrequisitos || [];
@@ -32,9 +49,29 @@ function renderPrereqPanel(panelEl, curso){
 }
 
 // ======== Render ========
+function cumpleExprPorCodigo(expr, aprobadosSet){
+  if (!expr || !expr.trim()) return true;
+
+  let s = expr.toUpperCase().replace(/\s+/g, " ");
+  s = s.replace(/[A-Z]{2,}\d{2,}/g, (code)=>{
+    const id = byCode[code];
+    return id ? (aprobadosSet.has(id) ? "true" : "false") : "false";
+  });
+  s = s.replace(/\by\b/g, "&&").replace(/\bo\b/g, "||");
+
+  try {
+    // eslint-disable-next-line no-eval
+    return !!eval(s);
+  } catch { return false; }
+}
 async function cargarMalla() {
   const res = await fetch("data.json");
   datos = await res.json();
+  buildMaps(datos); // <-- aquí
+  
+}
+
+
 
   // mapa id -> curso
   byId = {};
@@ -54,7 +91,7 @@ async function cargarMalla() {
       card.dataset.id = c.id;
 
       const aprobado = cursosAprobados.has(c.id);
-      const desbloq = tieneTodos(c.prerrequisitos || []);
+      const desbloq = cumplePrereq(c);
 
       if (aprobado) card.classList.add("aprobado");
       if (desbloq && mostrarDesbloqueados) card.classList.add("desbloqueado");
@@ -105,6 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cursosAprobados.clear();
       guardaProgreso();
       cargarMalla();
+      
     }
   });
 
@@ -159,6 +197,7 @@ function importarProgreso(file) {
     e.target.value = ""; 
   });
 }
+
 
 
 
