@@ -67,7 +67,7 @@ async function cargarMalla() {
         <div class="badges">
           ${desbloq ? `<span class="badge ok">OK</span>` : `<span class="badge req">Req</span>`}
         </div>
-        <div class="sct">${c.sct ?? c.creditos ?? ""} SCT</div>
+        <div class="sct">${c.sct ?? c.creditos ?? ""} CT</div>
         <button class="btn-prereq" type="button">Ver pre</button>
         <div class="prereq-panel"></div>
       `;
@@ -139,3 +139,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   cargarMalla();
 });
+
