@@ -5,29 +5,12 @@ let datos = null;
 let byId = {};
 let mostrarDesbloqueados = true;
 
-let byCode = {};
-
-
 // ======== Util ========
 const guardaProgreso = () => {
   localStorage.setItem(APROBADOS_KEY, JSON.stringify([...cursosAprobados]));
 };
 const tieneTodos = (prereqs) => (prereqs || []).every((id) => cursosAprobados.has(id));
 const idToNombre = (id) => (byId[id]?.nombre || `ID ${id}`);
-function buildMaps(datos){
-  byId = {};
-  byCode = {};
-  datos.semestres.forEach(sem => sem.cursos.forEach(c => {
-    byId[c.id] = c;
-    if (c.codigo) byCode[c.codigo.trim().toUpperCase()] = c.id;
-  }));
-}
-function cumplePrereq(curso){
-  const okIds = (curso.prerrequisitos || []).every(id => cursosAprobados.has(id));
-  const okExpr = cumpleExprPorCodigo(curso.prereq_expr || "", cursosAprobados);
-  return okIds && okExpr;
-}
-
 
 function renderPrereqPanel(panelEl, curso){
   const prereqs = curso.prerrequisitos || [];
@@ -49,29 +32,9 @@ function renderPrereqPanel(panelEl, curso){
 }
 
 // ======== Render ========
-function cumpleExprPorCodigo(expr, aprobadosSet){
-  if (!expr || !expr.trim()) return true;
-
-  let s = expr.toUpperCase().replace(/\s+/g, " ");
-  s = s.replace(/[A-Z]{2,}\d{2,}/g, (code)=>{
-    const id = byCode[code];
-    return id ? (aprobadosSet.has(id) ? "true" : "false") : "false";
-  });
-  s = s.replace(/\by\b/g, "&&").replace(/\bo\b/g, "||");
-
-  try {
-    // eslint-disable-next-line no-eval
-    return !!eval(s);
-  } catch { return false; }
-}
 async function cargarMalla() {
   const res = await fetch("data.json");
   datos = await res.json();
-  buildMaps(datos); // <-- aquí
-  
-
-
-
 
   // mapa id -> curso
   byId = {};
@@ -91,7 +54,7 @@ async function cargarMalla() {
       card.dataset.id = c.id;
 
       const aprobado = cursosAprobados.has(c.id);
-      const desbloq = cumplePrereq(c);
+      const desbloq = tieneTodos(c.prerrequisitos || []);
 
       if (aprobado) card.classList.add("aprobado");
       if (desbloq && mostrarDesbloqueados) card.classList.add("desbloqueado");
@@ -110,12 +73,35 @@ async function cargarMalla() {
       `;
 
       // click en tarjeta: toggle aprobado
-      card.addEventListener("click", () => {
-        if (cursosAprobados.has(c.id)) cursosAprobados.delete(c.id);
-        else cursosAprobados.add(c.id);
-        guardaProgreso();
-        cargarMalla(); // re-render para recalcular estados
-      });
+      // click en tarjeta: toggle aprobado (respetando prerrequisitos)
+card.addEventListener("click", () => {
+  const yaAprobado = cursosAprobados.has(c.id);
+  const desbloqNow = tieneTodos(c.prerrequisitos || []);
+
+  // Si NO cumple prerrequisitos y aún no está aprobado → bloquear
+  if (!desbloqNow && !yaAprobado) {
+    // feedback visual + abrir panel de pre
+    const panel = card.querySelector(".prereq-panel");
+    const btn = card.querySelector(".btn-prereq");
+    renderPrereqPanel(panel, c);
+    panel.classList.add("open");
+    if (btn) btn.textContent = "Ocultar pre";
+
+    // pequeña animación de shake
+    card.classList.remove("denegado");
+    void card.offsetWidth; // reflow para reiniciar animación
+    card.classList.add("denegado");
+    return; // NO marcar como aprobado
+  }
+
+  // Si cumple prerrequisitos (o ya estaba aprobado), toggle normal
+  if (yaAprobado) cursosAprobados.delete(c.id);
+  else cursosAprobados.add(c.id);
+
+  guardaProgreso();
+  cargarMalla(); // re-render para recalcular estados
+});
+
 
       // botón "Ver pre": abrir/cerrar panel (sin marcar aprobado)
       const btn = card.querySelector(".btn-prereq");
@@ -142,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
       cursosAprobados.clear();
       guardaProgreso();
       cargarMalla();
-      
     }
   });
 
@@ -154,51 +139,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   cargarMalla();
 });
-
-function exportarProgreso() {
-  const payload = {
-    version: 1,
-    timestamp: new Date().toISOString(),
-    aprobados: [...cursosAprobados]  // ids de cursos
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "progreso-malla.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function importarProgreso(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(reader.result);
-      if (!data || !Array.isArray(data.aprobados)) throw new Error("Formato inválido");
-      cursosAprobados = new Set(data.aprobados.map(Number));
-      localStorage.setItem(APROBADOS_KEY, JSON.stringify([...cursosAprobados]));
-      alert("Progreso importado correctamente.");
-      cargarMalla();
-    } catch (e) {
-      alert("No se pudo importar: " + e.message);
-    }
-  };
-  reader.readAsText(file);
-  document.getElementById("btn-export").addEventListener("click", exportarProgreso);
-
-  // Importar
-  const input = document.getElementById("file-import");
-  input.addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if (file) importarProgreso(file);
-    e.target.value = ""; 
-  });
-}
-
-
-
-
-
