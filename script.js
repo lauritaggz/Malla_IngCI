@@ -110,12 +110,21 @@ async function cargarMalla() {
       `;
 
       // click en tarjeta: toggle aprobado
-      card.addEventListener("click", () => {
-        if (cursosAprobados.has(c.id)) cursosAprobados.delete(c.id);
-        else cursosAprobados.add(c.id);
-        guardaProgreso();
-        cargarMalla(); // re-render para recalcular estados
-      });
+      cursoDiv.addEventListener("click", () => {
+          if (!curso.aprobado) {
+            const prereqs = curso.prerreq || [];
+            const prereqsCumplidos = prereqs.every(cod => aprobados.has(cod));
+            if (!prereqsCumplidos) {
+              alert("No puedes aprobar este curso sin cumplir todos los prerrequisitos.");
+              return;
+            }
+          }
+        
+          curso.aprobado = !curso.aprobado;
+          guardarProgreso();
+          renderMalla();
+        });
+
 
       // botón "Ver pre": abrir/cerrar panel (sin marcar aprobado)
       const btn = card.querySelector(".btn-prereq");
@@ -197,6 +206,7 @@ function importarProgreso(file) {
     e.target.value = ""; 
   });
 }
+
 
 
 
