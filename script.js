@@ -1,141 +1,153 @@
-// ======== Estado ========
-const APROBADOS_KEY = "malla_aprobados";
-let cursosAprobados = new Set(JSON.parse(localStorage.getItem(APROBADOS_KEY) || "[]"));
-let datos = null;
-let byId = {};
-let mostrarDesbloqueados = true;
+const contenedorMalla = document.getElementById("malla");
+const btnReset = document.getElementById("btn-reset");
+const btnTogglePrereq = document.getElementById("toggle-prereq");
 
-// ======== Util ========
-const guardaProgreso = () => {
-  localStorage.setItem(APROBADOS_KEY, JSON.stringify([...cursosAprobados]));
-};
-const tieneTodos = (prereqs) => (prereqs || []).every((id) => cursosAprobados.has(id));
-const idToNombre = (id) => (byId[id]?.nombre || `ID ${id}`);
+const STORAGE_KEY = "malla_progreso_v1";
 
-function renderPrereqPanel(panelEl, curso){
-  const prereqs = curso.prerrequisitos || [];
-  const nombres = prereqs.map(idToNombre);
-  const faltan = prereqs.filter(id => !cursosAprobados.has(id)).map(idToNombre);
-  panelEl.innerHTML = `
-    <div><strong>Prerrequisitos</strong></div>
-    ${prereqs.length
-      ? `<ul>${nombres.map(n=>`<li>${n}</li>`).join("")}</ul>`
-      : `<div>Sin prerrequisitos</div>`
-    }
-    ${prereqs.length
-      ? `<div style="margin-top:6px">Estado: <span class="${faltan.length? 'miss':'ok'}">
-          ${faltan.length ? `Faltan: ${faltan.join(", ")}` : "Todos cumplidos"}
-        </span></div>`
-      : ""
-    }
-  `;
+let cursos = [];
+let aprobados = new Set();
+let mostrarPrereq = true;
+
+// === Inicialización segura ===
+if (!localStorage.getItem(STORAGE_KEY)) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+}
+cargarProgreso();
+
+// === Cargar cursos desde JSON ===
+fetch("data.json")
+  .then(res => res.json())
+  .then(data => {
+    // aplanar semestres -> cursos con su semestre
+    cursos = data.semestres.flatMap(s =>
+      s.cursos.map(c => ({ ...c, semestre: s.numero }))
+    );
+    renderMalla();
+  });
+
+// === Eventos de controles ===
+btnReset.addEventListener("click", () => {
+  if (confirm("¿Quieres reiniciar tu progreso?")) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    aprobados.clear();
+    renderMalla();
+  }
+});
+
+btnTogglePrereq.addEventListener("change", () => {
+  mostrarPrereq = btnTogglePrereq.checked;
+  renderMalla();
+});
+
+// === Funciones de guardado/carga ===
+function guardarProgreso() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(aprobados)));
 }
 
-// ======== Render ========
-async function cargarMalla() {
-  const res = await fetch("data.json");
-  datos = await res.json();
+function cargarProgreso() {
+  try {
+    const guardado = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (Array.isArray(guardado)) {
+      aprobados = new Set(guardado);
+    } else {
+      aprobados = new Set();
+    }
+  } catch {
+    aprobados = new Set();
+  }
+}
 
-  // mapa id -> curso
-  byId = {};
-  datos.semestres.forEach(sem => sem.cursos.forEach(c => byId[c.id] = c));
+// === Render de la malla ===
+function renderMalla() {
+  contenedorMalla.innerHTML = "";
 
-  const contenedor = document.getElementById("malla");
-  contenedor.innerHTML = "";
+  const porSemestre = {};
+  cursos.forEach(c => {
+    if (!porSemestre[c.semestre]) porSemestre[c.semestre] = [];
+    porSemestre[c.semestre].push(c);
+  });
 
-  datos.semestres.forEach((sem) => {
-    const col = document.createElement("section");
-    col.className = "semestre";
-    col.innerHTML = `<h3>Semestre ${sem.numero}</h3>`;
+  Object.keys(porSemestre).sort((a, b) => a - b).forEach(sem => {
+    const columna = document.createElement("div");
+    columna.className = "semestre";
+    columna.innerHTML = `<h3>Semestre ${sem}</h3>`;
 
-    sem.cursos.forEach((c) => {
-      const card = document.createElement("div");
-      card.className = "curso";
-      card.dataset.id = c.id;
+    porSemestre[sem].forEach(curso => {
+      const cursoDiv = document.createElement("div");
+      cursoDiv.className = "curso";
+      if (aprobados.has(curso.codigo)) cursoDiv.classList.add("aprobado");
 
-      const aprobado = cursosAprobados.has(c.id);
-      const desbloq = tieneTodos(c.prerrequisitos || []);
+      const desbloqueado = (curso.prerrequisitos || []).every(c => aprobados.has(c));
+      if (!desbloqueado && !aprobados.has(curso.codigo)) {
+        cursoDiv.classList.add("bloqueado");
+      } else if (!aprobados.has(curso.codigo)) {
+        cursoDiv.classList.add("desbloqueado");
+      }
 
-      if (aprobado) card.classList.add("aprobado");
-      if (desbloq && mostrarDesbloqueados) card.classList.add("desbloqueado");
-      if (!desbloq && !aprobado) card.classList.add("bloqueado");
-
-      // estructura
-      card.innerHTML = `
-        <span class="codigo">${c.codigo || "COD"}</span>
-        <span class="nombre">${c.nombre}</span>
+      cursoDiv.innerHTML = `
+        <div class="codigo">${curso.codigo}</div>
+        <div class="nombre">${curso.nombre}</div>
+        <div class="sct">${curso.sct || ""} SCT</div>
         <div class="badges">
-          ${desbloq ? `<span class="badge ok">OK</span>` : `<span class="badge req">Req</span>`}
+          ${aprobados.has(curso.codigo) ? '<div class="badge ok">OK</div>' :
+            (!desbloqueado ? '<div class="badge req">Req</div>' : '')}
         </div>
-        <div class="sct">${c.sct ?? c.creditos ?? ""} CT</div>
-        <button class="btn-prereq" type="button">Ver pre</button>
-        <div class="prereq-panel"></div>
+        <button class="btn-prereq">Ver prerrequisitos</button>
+        <div class="prereq-panel">
+          <strong>Prerrequisitos:</strong>
+          <ul>
+            ${(curso.prerrequisitos || []).map(cod => {
+              const ok = aprobados.has(cod);
+              const nombre = cursos.find(c => c.codigo === cod)?.nombre || cod;
+              return `<li class="${ok ? 'ok' : 'miss'}">${nombre}</li>`;
+            }).join('')}
+          </ul>
+          ${!curso.prerrequisitos || curso.prerrequisitos.length === 0
+            ? "<div>Sin prerrequisitos</div>"
+            : `<div style="margin-top:6px">Estado: <span class="${desbloqueado ? 'ok' : 'miss'}">
+                ${desbloqueado ? "Todos cumplidos" : "Faltan por aprobar"}
+              </span></div>`}
+        </div>
       `;
 
-      // click en tarjeta: toggle aprobado
-      // click en tarjeta: toggle aprobado (respetando prerrequisitos)
-card.addEventListener("click", () => {
-  const yaAprobado = cursosAprobados.has(c.id);
-  const desbloqNow = tieneTodos(c.prerrequisitos || []);
+      const btnPre = cursoDiv.querySelector(".btn-prereq");
+      const panel = cursoDiv.querySelector(".prereq-panel");
 
-  // Si NO cumple prerrequisitos y aún no está aprobado → bloquear
-  if (!desbloqNow && !yaAprobado) {
-    // feedback visual + abrir panel de pre
-    const panel = card.querySelector(".prereq-panel");
-    const btn = card.querySelector(".btn-prereq");
-    renderPrereqPanel(panel, c);
-    panel.classList.add("open");
-    if (btn) btn.textContent = "Ocultar pre";
-
-    // pequeña animación de shake
-    card.classList.remove("denegado");
-    void card.offsetWidth; // reflow para reiniciar animación
-    card.classList.add("denegado");
-    return; // NO marcar como aprobado
-  }
-
-  // Si cumple prerrequisitos (o ya estaba aprobado), toggle normal
-  if (yaAprobado) cursosAprobados.delete(c.id);
-  else cursosAprobados.add(c.id);
-
-  guardaProgreso();
-  cargarMalla(); // re-render para recalcular estados
-});
-
-
-      // botón "Ver pre": abrir/cerrar panel (sin marcar aprobado)
-      const btn = card.querySelector(".btn-prereq");
-      const panel = card.querySelector(".prereq-panel");
-      btn.addEventListener("click", (ev) => {
-        ev.stopPropagation(); // evita togglear aprobado
-        // actualizar contenido según estado actual
-        renderPrereqPanel(panel, c);
+      btnPre.addEventListener("click", e => {
+        e.stopPropagation();
         panel.classList.toggle("open");
-        btn.textContent = panel.classList.contains("open") ? "Ocultar pre" : "Ver pre";
+        btnPre.textContent = panel.classList.contains("open") ? "Ocultar pre" : "Ver prerequisitos";
       });
 
-      col.appendChild(card);
+      cursoDiv.addEventListener("click", () => {
+        const prereqs = curso.prerrequisitos || [];
+        const cumple = prereqs.every(cod => aprobados.has(cod));
+
+        if (!aprobados.has(curso.codigo)) {
+          if (!cumple) {
+            if (!panel.classList.contains("open")) {
+              panel.classList.add("open");
+              btnPre.textContent = "Ocultar pre";
+            }
+            return;
+          }
+          aprobados.add(curso.codigo);
+        } else {
+          aprobados.delete(curso.codigo);
+        }
+
+        guardarProgreso();
+        renderMalla();
+      });
+
+      if (!mostrarPrereq) {
+        btnPre.style.display = "none";
+        panel.style.display = "none";
+      }
+
+      columna.appendChild(cursoDiv);
     });
 
-    contenedor.appendChild(col);
+    contenedorMalla.appendChild(columna);
   });
 }
-
-// ======== Controles ========
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    if (confirm("¿Reiniciar progreso?")) {
-      cursosAprobados.clear();
-      guardaProgreso();
-      cargarMalla();
-    }
-  });
-
-  const chk = document.getElementById("toggle-prereq");
-  chk.addEventListener("change", (e) => {
-    mostrarDesbloqueados = e.target.checked;
-    cargarMalla();
-  });
-
-  cargarMalla();
-});
